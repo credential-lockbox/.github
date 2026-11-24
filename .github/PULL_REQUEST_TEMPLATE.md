@@ -12,7 +12,7 @@
 <!-- A checklist QA can run. Each item names the exact command or file and the expected result. -->
 
 1. - [ ] <!-- the project's test command --> passes
-2. - [ ] `gh pr checks <PR>`: all green
+2. - [ ] `gh pr checks <PR>`: all green (where the repository has CI)
 
 ## CHANGELOG
 
