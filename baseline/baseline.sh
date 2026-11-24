@@ -49,7 +49,8 @@
 #    head branches deleted on merge; squash commit title "commit or PR title"
 #    and message "commit messages"; web commit sign-off not required.
 #    Default branch main (skipped while the repo has no main branch).
-# 4. Dependabot vulnerability alerts on.
+# 4. Dependabot vulnerability alerts on, and private vulnerability reporting on
+#    (the "Report a vulnerability" button that the org's SECURITY.md points to).
 # 5. Labels (labels.json): the fleet's workflow labels (Dev Active, Awaiting CI,
 #    CI Failed, Ready for QA, QA Active, QA Failed, Ready for QA Signoff,
 #    QA Approved, Muse Approved, Muse Failed) plus security, tracking and
@@ -292,6 +293,16 @@ case $alerts_status in
   204) same "vulnerability alerts on" ;;
   404) change "turn on vulnerability alerts" gh api -X PUT "repos/$REPO/vulnerability-alerts" ;;
   *) die "can't read vulnerability alerts on $REPO (GET vulnerability-alerts: HTTP ${alerts_status:-no reply})" ;;
+esac
+
+echo "private vulnerability reporting:"
+pvr=$(gh api "repos/$REPO/private-vulnerability-reporting" --jq .enabled 2>"$TMP/err") \
+  || die "can't read private vulnerability reporting on $REPO: $(cat "$TMP/err")"
+case $pvr in
+  true) same "private vulnerability reporting on" ;;
+  false) change "turn on private vulnerability reporting" \
+           gh api -X PUT "repos/$REPO/private-vulnerability-reporting" ;;
+  *) die "unexpected reply for private vulnerability reporting on $REPO: $pvr" ;;
 esac
 
 # --- 5. Labels ---------------------------------------------------------------
