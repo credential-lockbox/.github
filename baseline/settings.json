@@ -8,5 +8,6 @@
   "delete_branch_on_merge": true,
   "squash_merge_commit_title": "COMMIT_OR_PR_TITLE",
   "squash_merge_commit_message": "COMMIT_MESSAGES",
-  "web_commit_signoff_required": false
+  "web_commit_signoff_required": false,
+  "pull_request_creation_policy": "collaborators_only"
 }
