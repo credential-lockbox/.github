@@ -2,7 +2,7 @@
 # baseline.sh: apply the credential-lockbox org's repository baseline to one repo.
 #
 # Usage:
-#   baseline/baseline.sh [--apply] [--check NAME]... [--no-checks] credential-lockbox/<repo>
+#   baseline/baseline.sh [--apply] [--check NAME]... [--no-checks] [--empty-ok] credential-lockbox/<repo>
 #
 # Without --apply it is a dry run: it reads the repo and prints what it would
 # change, and changes nothing. With --apply it makes those changes. Either way it
@@ -11,9 +11,15 @@
 #
 # --check NAME (repeatable) is the only per-repo input: the status checks that
 # must pass before a merge to main (GitHub Actions check names, e.g. ci-ok and
-# "QA Gate"). Give the repo's full list every time. If you give none and the
-# repo's main ruleset already requires checks, the script stops rather than
-# remove them; --no-checks says you mean to run with no required checks.
+# "QA Gate"). Each must be a GitHub Actions job that runs on pull requests: a
+# name nothing reports blocks every merge. Give the repo's full list every
+# time. If you give none and the repo's main ruleset already requires checks,
+# the script stops rather than remove them; --no-checks says you mean to run
+# with no required checks.
+#
+# The main ruleset requires pull requests and blocks force pushes, so a repo
+# gets it after its first history is on main. With no main branch yet, a dry
+# run warns and --apply stops; --empty-ok applies anyway.
 #
 # If a change fails, the script prints FAILED with GitHub's reply, goes on with
 # the rest, and exits 1 at the end. Any other API error stops it at once.
@@ -36,8 +42,8 @@
 #    - no bypass actors.
 # 2. Ruleset "release tags" (rulesets/release-tags.json), on refs/tags/v* and
 #    refs/tags/*-v*: no creation, update or deletion, except by the repository
-#    admin role (bypass always). So release tags are created by a maintainer and
-#    can't be moved or deleted afterward.
+#    admin role (bypass always). So release tags are created by a repository
+#    admin and can't be moved or deleted afterward.
 # 3. Repository settings (settings.json): issues on; squash, merge commit and
 #    rebase merges allowed; auto-merge off; "update branch" button off;
 #    head branches deleted on merge; squash commit title "commit or PR title"
@@ -62,23 +68,31 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ORG=credential-lockbox
 ACTIONS_APP_ID=15368
 
-usage() { # usage <exit code>
-  sed -n '4,5p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+usage() { # usage <exit code>: --help prints the whole intro to stdout
+  if (($1 == 0)); then
+    sed -n '4,/^# Run it as/p' "${BASH_SOURCE[0]}" | sed '$d; s/^# \{0,1\}//'
+  else
+    sed -n '4,5p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  fi
   exit "$1"
 }
 die() { echo "baseline: $*" >&2; exit 1; }
 
 APPLY=0
 NO_CHECKS=0
+EMPTY_OK=0
 REPO=
 CHECKS=()
 while (($#)); do
   case $1 in
     --apply) APPLY=1 ;;
     --no-checks) NO_CHECKS=1 ;;
+    --empty-ok) EMPTY_OK=1 ;;
     --check)
-      if [[ $# -lt 2 || $2 == -* || -z ${2//[[:space:]]/} ]]; then
-        echo "baseline: --check needs a check name (got: ${2-nothing})" >&2; exit 2
+      if [[ $# -lt 2 || $2 == -* || -z ${2//[[:space:]]/} || $2 == *$'\n'* \
+            || $2 == [[:space:]]* || $2 == *[[:space:]] ]]; then
+        echo "baseline: --check needs a check name, with no leading or trailing space or newline (got: '${2-}')" >&2
+        exit 2
       fi
       CHECKS+=("$2"); shift ;;
     -h|--help) usage 0 ;;
@@ -132,6 +146,12 @@ SUBSET='def subset($a; $b):
 # The contexts a ruleset requires, one per line.
 CONTEXTS='[.rules[]? | select(.type == "required_status_checks")
           | .parameters.required_status_checks[].context] | sort | .[]'
+# Live checks reported by an app other than GitHub Actions: "<context> (app <id>)".
+# shellcheck disable=SC2016 # jq variables, not shell ones
+OTHER_APPS='[.rules[]? | select(.type == "required_status_checks")
+            | .parameters.required_status_checks[]
+            | select((.integration_id // 0) != $app)
+            | "\(.context) (app \(.integration_id // "any"))"] | sort | .[]'
 
 CHANGES=0
 FAILED=0
@@ -158,6 +178,17 @@ gh api "repos/$REPO" >"$repo_json" 2>"$TMP/err" \
 
 echo "$REPO ($([[ $APPLY == 1 ]] && echo apply || echo 'dry run'))"
 
+main_status=$(http_status "repos/$REPO/branches/main")
+case $main_status in
+  200) ;;
+  404)
+    if ((APPLY && !EMPTY_OK)); then
+      die "$REPO has no main branch yet. Push its first history to main, then run this (the main ruleset requires pull requests and blocks force pushes), or pass --empty-ok"
+    fi
+    echo "  WARNING: $REPO has no main branch yet; push its first history before applying (or pass --empty-ok)" ;;
+  *) die "can't tell whether $REPO has a main branch (GET branches/main: HTTP ${main_status:-no reply})" ;;
+esac
+
 # --- 1-2. Rulesets -----------------------------------------------------------
 gh api --paginate "repos/$REPO/rulesets?includes_parents=false" --jq '.[] | {id, name}' \
   | jq -s . >"$TMP/rulesets.json"
@@ -174,6 +205,11 @@ if ((${#CHECKS[@]} == 0 && !NO_CHECKS)) && [[ -n $live_contexts ]]; then
   echo "baseline: the main ruleset on $REPO requires these checks:" >&2
   while IFS= read -r c; do echo "  $c"; done <<<"$live_contexts" >&2
   echo "Give them again with --check (one each), or pass --no-checks to remove them." >&2
+  other=$(jq -r --argjson app "$ACTIONS_APP_ID" "$OTHER_APPS" "$TMP/current-$main_id.json")
+  if [[ -n $other ]]; then
+    echo "Note: --check pins each check to GitHub Actions, and these come from another app:" >&2
+    while IFS= read -r c; do echo "  $c"; done <<<"$other" >&2
+  fi
   exit 2
 fi
 
@@ -193,6 +229,8 @@ show_contexts() { # show_contexts <live file or empty> <desired file>
   want=$(jq -r "$CONTEXTS" "$desired")
   have=
   [[ -z $live ]] || have=$(jq -r "$CONTEXTS" "$live")
+  [[ -z $live ]] || jq -r --argjson app "$ACTIONS_APP_ID" "$OTHER_APPS" "$live" \
+    | sed 's/^/      required check source changes to GitHub Actions: /'
   [[ $want != "$have" ]] || return 0
   comm -13 <(sort <<<"$have") <(sort <<<"$want") | sed '/^$/d; s/^/      required check added: /'
   comm -23 <(sort <<<"$have") <(sort <<<"$want") | sed '/^$/d; s/^/      required check REMOVED: /'
@@ -233,11 +271,11 @@ jq -n --slurpfile d "$HERE/settings.json" --slurpfile c "$repo_json" '
   $d[0] | with_entries(select(.value != $c[0][.key]))' >"$patch"
 default_branch=$(jq -r .default_branch "$repo_json")
 if [[ $default_branch != main ]]; then
-  case $(http_status "repos/$REPO/branches/main") in
-    200) jq '. + {default_branch: "main"}' "$patch" >"$patch.new" && mv "$patch.new" "$patch" ;;
-    404) echo "  skipped: default branch is \"$default_branch\" and there is no main branch yet" ;;
-    *) die "can't tell whether $REPO has a main branch (GET branches/main failed)" ;;
-  esac
+  if [[ $main_status == 200 ]]; then
+    jq '. + {default_branch: "main"}' "$patch" >"$patch.new" && mv "$patch.new" "$patch"
+  else
+    echo "  skipped: default branch is \"$default_branch\" and there is no main branch yet"
+  fi
 fi
 if [[ $(jq length "$patch") -gt 0 ]]; then
   jq -r --slurpfile c "$repo_json" 'to_entries[] | "      \(.key): \($c[0][.key] | tojson) -> \(.value | tojson)"' "$patch"
@@ -249,10 +287,11 @@ fi
 
 # --- 4. Vulnerability alerts -------------------------------------------------
 echo "vulnerability alerts:"
-case $(http_status "repos/$REPO/vulnerability-alerts") in
+alerts_status=$(http_status "repos/$REPO/vulnerability-alerts")
+case $alerts_status in
   204) same "vulnerability alerts on" ;;
   404) change "turn on vulnerability alerts" gh api -X PUT "repos/$REPO/vulnerability-alerts" ;;
-  *) die "can't read vulnerability alerts on $REPO (GET vulnerability-alerts failed)" ;;
+  *) die "can't read vulnerability alerts on $REPO (GET vulnerability-alerts: HTTP ${alerts_status:-no reply})" ;;
 esac
 
 # --- 5. Labels ---------------------------------------------------------------
@@ -276,7 +315,13 @@ for ((i = 0; i < count; i++)); do
     same "label \"$name\""
   else
     old=$(jq -r .name <<<"$have")
-    change "update label \"$old\" (name case, color or description)" gh api -X PATCH \
+    jq -rn --argjson w "$want" --argjson h "$have" '
+      (if $w.name != $h.name then "      name: \($h.name | tojson) -> \($w.name | tojson)" else empty end),
+      (if ($w.color | ascii_downcase) != ($h.color | ascii_downcase)
+       then "      color: \($h.color) -> \($w.color)" else empty end),
+      (if $w.description != ($h.description // "")
+       then "      description: \($h.description // "" | tojson) -> \($w.description | tojson)" else empty end)'
+    change "update label \"$old\"" gh api -X PATCH \
       "repos/$REPO/labels/$(jq -rn --arg n "$old" '$n | @uri')" \
       -f new_name="$name" -f color="$color" -f description="$description"
   fi
