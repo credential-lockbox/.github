@@ -1,0 +1,55 @@
+name: Platform test report
+description: What happened when you ran a project on a platform or tool version that isn't tested
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports from platforms a project doesn't yet call tested (macOS, Windows, phones, older tools) help decide what its docs can claim. Use the project's published test keys, never a real credential.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "v1.2.3 or abc1234"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and version
+      placeholder: "macOS 15.3 on Apple silicon, Windows 11 24H2, Android 15 with Termux 0.119"
+    validations:
+      required: true
+  - type: textarea
+    id: tools
+    attributes:
+      label: Tool versions
+      description: The shell and every tool the project uses, as their own `--version` prints them.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: ran
+    attributes:
+      label: What you ran
+      description: For example the project's test suite and its last lines, or the setup steps you followed.
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Everything passed
+        - Some checks failed or were skipped (details above)
+        - It didn't run
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything you had to change or install, and anything surprising.
+    validations:
+      required: false
