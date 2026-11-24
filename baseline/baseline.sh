@@ -50,7 +50,7 @@
 #    and message "commit messages"; web commit sign-off not required.
 #    Default branch main (skipped while the repo has no main branch).
 # 4. Dependabot vulnerability alerts on, and private vulnerability reporting on
-#    (the "Report a vulnerability" button that the org's SECURITY.md points to).
+#    (the "Report a vulnerability" button, where private security reports go).
 # 5. Labels (labels.json): the fleet's workflow labels (Dev Active, Awaiting CI,
 #    CI Failed, Ready for QA, QA Active, QA Failed, Ready for QA Signoff,
 #    QA Approved, Muse Approved, Muse Failed) plus security, tracking and

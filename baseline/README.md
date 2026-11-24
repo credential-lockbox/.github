@@ -1,6 +1,6 @@
 # Repository baseline
 
-`baseline.sh` gives every repository in the credential-lockbox org the same rulesets, settings, vulnerability alerts, private vulnerability reporting and labels. The org is on GitHub Free, where org-wide rulesets aren't available, so the script applies the same package to one repo at a time. The list of what it manages is in the script's header (`baseline/baseline.sh --help` prints the intro). On GitHub Free, repository rulesets work only on public repos, so the script is for the org's public repos while the org stays on Free.
+`baseline.sh` gives every repository in the credential-lockbox org the same rulesets, settings, vulnerability alerts, private vulnerability reporting and labels. The org is on GitHub Free, where org-wide rulesets aren't available, so the script applies the same package to one repo at a time. The list of what it manages is in the script's header. `baseline/baseline.sh --help` prints only the usage part. On GitHub Free, repository rulesets work only on public repos, so the script is for the org's public repos while the org stays on Free.
 
 ## Running it
 
