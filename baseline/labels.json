@@ -1,0 +1,15 @@
+[
+  { "name": "Dev Active", "color": "fbca04", "description": "Developer is actively working on this PR; QA should not start" },
+  { "name": "Awaiting CI", "color": "c2e0c6", "description": "Dev complete, waiting for CI/Codecov to pass before QA" },
+  { "name": "CI Failed", "color": "b60205", "description": "CI failed — dev needs to fix" },
+  { "name": "Ready for QA", "color": "0075ca", "description": "Dev work complete — QA can begin review" },
+  { "name": "QA Active", "color": "d93f0b", "description": "QA is actively reviewing; Dev should not push changes" },
+  { "name": "QA Failed", "color": "d93f0b", "description": "QA found issues — needs dev attention" },
+  { "name": "Ready for QA Signoff", "color": "7057ff", "description": "QA passed — ready for maintainer final review and merge" },
+  { "name": "QA Approved", "color": "0e8a16", "description": "Manual QA testing completed and passed" },
+  { "name": "Muse Approved", "color": "0e8a16", "description": "Muse review completed — no blocking findings" },
+  { "name": "Muse Failed", "color": "b60205", "description": "Muse review completed — blocking findings" },
+  { "name": "security", "color": "5319e7", "description": "Weakens a security property, or a hardening gap (private reports go to SECURITY.md, not here)" },
+  { "name": "tracking", "color": "5319e7", "description": "Umbrella or backlog issue that tracks several items" },
+  { "name": "accessibility", "color": "f143ab", "description": "Barrier affecting people with disabilities" }
+]
