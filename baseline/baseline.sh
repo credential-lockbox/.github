@@ -48,7 +48,9 @@
 # 3. Repository settings (settings.json): issues on; squash, merge commit and
 #    rebase merges allowed; auto-merge off; "update branch" button off;
 #    head branches deleted on merge; squash commit title "commit or PR title"
-#    and message "commit messages"; web commit sign-off not required.
+#    and message "commit messages"; web commit sign-off not required; pull
+#    requests from collaborators only (outside contributions come in as
+#    issues, and code from outside never runs in CI).
 #    Default branch main (skipped while the repo has no main branch).
 # 4. Dependabot vulnerability alerts on, and private vulnerability reporting on
 #    (the "Report a vulnerability" button, where private security reports go).
