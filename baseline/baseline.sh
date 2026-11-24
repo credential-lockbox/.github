@@ -25,7 +25,8 @@
 # the rest, and exits 1 at the end. Any other API error stops it at once.
 #
 # Run it as an organization owner (your own gh login). It refuses to run without
-# admin on the repo. The org's GitHub Apps (the Dev and Muse bots) do not have
+# admin on the repo, and stops if the name now resolves to another repo (renamed
+# or transferred): run it on the current name. The org's GitHub Apps (the Dev and Muse bots) do not have
 # Administration permission, by design: they can't change the rules that gate
 # their own pull requests.
 #
@@ -175,10 +176,12 @@ repo_json=$TMP/repo.json
 gh api "repos/$REPO" >"$repo_json" 2>"$TMP/err" \
   || die "can't read $REPO: $(cat "$TMP/err") (does it exist, and is gh logged in?)"
 # GitHub answers a renamed or transferred repo's old name with a redirect, and
-# gh follows it: refuse unless the reply is the repo that was asked for, so no
-# later call writes to another repo.
+# gh follows it: refuse if the name already resolves to another repo when the
+# run starts. (A repo moved during the run isn't caught; moving one needs admin.)
+jq -e '(.full_name | type) == "string"' "$repo_json" >/dev/null 2>&1 \
+  || die "unexpected reply from GET repos/$REPO (no full_name)"
 jq -e --arg r "$REPO" '(.full_name | ascii_downcase) == ($r | ascii_downcase)' "$repo_json" >/dev/null \
-  || die "$REPO now resolves to $(jq -r '.full_name // "nothing"' "$repo_json") (renamed or transferred); run it on the current name"
+  || die "$REPO now resolves to $(jq -r .full_name "$repo_json") (renamed or transferred); run it on the current name"
 [[ $(jq -r '.permissions.admin // false' "$repo_json") == true ]] \
   || die "your gh login has no admin on $REPO; run it as an org owner"
 
