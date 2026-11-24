@@ -4,7 +4,7 @@
 
 ## Running it
 
-Run it as an org owner, from your own `gh` login. The org's bot apps have no Administration permission, by design.
+Run it as an org owner, from your own `gh` login. The org's bot apps have no Administration permission, by design. If the name you give now resolves to another repo (renamed or transferred), the script stops: run it on the current name.
 
 ```sh
 # Once the repo's CI reports ci-ok and "QA Gate" on pull requests:
