@@ -14,7 +14,9 @@ baseline/baseline.sh --check ci-ok --check "QA Gate" credential-lockbox/credenti
 baseline/baseline.sh --apply --check ci-ok --check "QA Gate" credential-lockbox/credential-lockbox
 ```
 
-`--check` is the only per-repo input: the status checks that must pass before a merge to `main`. Leave it out for a repo with no CI (this `.github` repo, for one). Re-running is safe. The script reads the current state and changes only what differs, and on a repo that already matches it reports `0 change(s)`.
+`--check` is the only per-repo input: the status checks that must pass before a merge to `main`. Give the repo's full list every time, since they aren't stored anywhere. Leave it out for a repo with no CI (this `.github` repo, for one). If you leave it out and the repo's `main` ruleset already requires checks, the script stops and names them instead of removing them. Pass `--no-checks` if you do mean to remove them. A dry run names every required check it would add or remove.
+
+Re-running is safe. The script reads the current state and changes only what differs, and on a repo that already matches it reports `0 change(s)`. If a change fails, it prints `FAILED` with GitHub's reply, carries on with the rest, and exits 1. Run it again once the cause is fixed.
 
 ## Payloads
 
