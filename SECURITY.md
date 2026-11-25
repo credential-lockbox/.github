@@ -13,10 +13,11 @@ Each repository is versioned on its own. Security fixes go into its latest relea
 The supported channel is a **GitHub private security advisory** on the repository the problem is in:
 
 1. Open that repository's **Security** tab and choose **Report a vulnerability**. On a narrow window the tab may be under the "…" menu. You need to be signed in to GitHub. Direct links:
-   - credential-lockbox: <https://github.com/credential-lockbox/credential-lockbox/security/advisories/new>. **Until its move release,** its code and releases are still in `cmeans/muse-field-kit`, so report there: <https://github.com/cmeans/muse-field-kit/security/advisories/new>.
+   - credential-lockbox: <https://github.com/credential-lockbox/credential-lockbox/security/advisories/new>. This covers its releases through `credential-lockbox-v0.3.0`, which were made in `cmeans/muse-field-kit` before the move, too.
    - credential-lockbox-muse: <https://github.com/credential-lockbox/credential-lockbox-muse/security/advisories/new>
    - the website: <https://github.com/credential-lockbox/credential-lockbox.github.io/security/advisories/new>
    - this organization's shared files (`.github`): <https://github.com/credential-lockbox/.github/security/advisories/new>
+   - s3-blob-store and s3-blob-store-muse, which haven't moved into the organization yet: <https://github.com/cmeans/s3-blob-store/security/advisories/new> and <https://github.com/cmeans/s3-blob-store-muse/security/advisories/new>
 2. Describe the problem, how to reproduce it, and the version affected.
 3. Submit it. Only you and the repository's maintainers see the report. The report, any proof of concept, the fix and the disclosure timing are all discussed there.
 
@@ -57,4 +58,6 @@ Documentation problems that don't weaken a security property can be reported as 
 - Vulnerabilities in Muse, its platform or its connectors. Report those to Meta.
 - Attacks that already need shell access as the agent's account, or the private key.
 
-See also each repository's `LICENSE` for the warranty disclaimer.
+## Historical issues
+
+Security-relevant findings that aren't embargoed are tracked as issues with the `security` label. See also each repository's `LICENSE` for the warranty disclaimer.
