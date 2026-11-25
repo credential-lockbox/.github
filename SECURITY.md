@@ -12,11 +12,12 @@ Each repository is versioned on its own. Security fixes go into its latest relea
 
 The supported channel is a **GitHub private security advisory** on the repository the problem is in:
 
-1. Open that repository's **Security** tab and choose **Report a vulnerability**. On a narrow window the tab may be under the "…" menu. You need to be signed in to GitHub. Direct links:
-   - credential-lockbox: <https://github.com/credential-lockbox/credential-lockbox/security/advisories/new>. **Until its move release,** its code and releases are still in `cmeans/muse-field-kit`, so report there: <https://github.com/cmeans/muse-field-kit/security/advisories/new>.
+1. Open that repository's **Security and quality** tab and choose **Report a vulnerability**. On a narrow window the tab may be under the "…" menu. You need to be signed in to GitHub. Direct links:
+   - credential-lockbox: <https://github.com/credential-lockbox/credential-lockbox/security/advisories/new>. Report problems in its earlier releases here too: those made in `cmeans/muse-field-kit` before the move (`credential-lockbox-v0.3.0`, and the older `encrypted-credential-handoff` releases `encrypted-credential-handoff-v0.2.1`, `v0.2.0` and `v0.1.0`), which get no fixes.
    - credential-lockbox-muse: <https://github.com/credential-lockbox/credential-lockbox-muse/security/advisories/new>
    - the website: <https://github.com/credential-lockbox/credential-lockbox.github.io/security/advisories/new>
    - this organization's shared files (`.github`): <https://github.com/credential-lockbox/.github/security/advisories/new>
+   - s3-blob-store and s3-blob-store-muse, which haven't moved into the organization yet: <https://github.com/cmeans/s3-blob-store/security/advisories/new> and <https://github.com/cmeans/s3-blob-store-muse/security/advisories/new>. Until they move, this policy applies to them too. They have no issue forms, so if you can't use an advisory there, open a plain public issue titled "Security contact request", with no details.
 2. Describe the problem, how to reproduce it, and the version affected.
 3. Submit it. Only you and the repository's maintainers see the report. The report, any proof of concept, the fix and the disclosure timing are all discussed there.
 
@@ -56,5 +57,9 @@ Documentation problems that don't weaken a security property can be reported as 
 - Vulnerabilities in the tools a project uses (`age`, Python, `bash`, PowerShell and the like). Report those upstream.
 - Vulnerabilities in Muse, its platform or its connectors. Report those to Meta.
 - Attacks that already need shell access as the agent's account, or the private key.
+
+## Public security issues
+
+Security-relevant findings that aren't embargoed are tracked as issues with the `security` label.
 
 See also each repository's `LICENSE` for the warranty disclaimer.

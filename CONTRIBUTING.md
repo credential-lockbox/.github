@@ -9,7 +9,7 @@ Thanks for your interest. These projects are small and one-person, and they're s
 - **Bug report:** something doesn't work the way the docs say.
 - **Feature request:** a new capability, or a change to how something works.
 - **Platform test report:** what happened when you ran a project on a platform or tool version that isn't tested (macOS, Windows, a phone, an older `bash`).
-- **Security problems:** an exploitable flaw never goes in a public issue. Report it privately, as [SECURITY.md](https://github.com/credential-lockbox/.github/blob/main/SECURITY.md) says.
+- **Security problems:** an exploitable flaw never goes in a public issue. Report it privately, as [SECURITY.md](https://github.com/credential-lockbox/.github/blob/main/SECURITY.md) says. (Hardening work that isn't embargoed is tracked as issues with the `security` label.)
 
 A good issue is specific: the project, its version, your platform, what you ran, what you expected and what happened, and the output with any secret removed. A proposed fix in the issue (a diff, or the exact wording) is welcome. The maintainer's side turns an agreed fix into a pull request and credits you in it.
 

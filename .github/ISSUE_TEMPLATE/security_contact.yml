@@ -1,12 +1,12 @@
 name: Security contact request
-description: "Not for reporting: use the repository's Security tab, Report a vulnerability. Only if you can't: asks for a private channel, with no details here"
+description: "Not for reporting: use the repository's Security and quality tab, Report a vulnerability. Only if you can't: asks for a private channel, with no details here"
 title: "Security contact request"
 labels: ["question"]
 body:
   - type: markdown
     attributes:
       value: |
-        **Put no details of the problem in this issue.** This issue is public. Its only purpose is to ask the maintainer for a private channel to report a security problem, for when you can't use a private advisory (this repository's **Security** tab, then **Report a vulnerability**; [SECURITY.md](https://github.com/credential-lockbox/.github/blob/main/SECURITY.md#reporting-a-problem) has the direct links). The maintainer will reply here to arrange one.
+        **Put no details of the problem in this issue.** This issue is public. Its only purpose is to ask the maintainer for a private channel to report a security problem, for when you can't use a private advisory (this repository's **Security and quality** tab, then **Report a vulnerability**; [SECURITY.md](https://github.com/credential-lockbox/.github/blob/main/SECURITY.md#reporting-a-problem) has the direct links). The maintainer will reply here to arrange one.
   - type: checkboxes
     id: no_details
     attributes:
